@@ -8,7 +8,7 @@
 
 ``` xml
 <dependency>
-	<groupId>com.github.hiwepy</groupId>
+	<groupId>io.github.hiwepy</groupId>
 	<artifactId>scribejava-apis-ext</artifactId>
 	<version>${project.version}</version>
 </dependency>
