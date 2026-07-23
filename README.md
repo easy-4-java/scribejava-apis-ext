@@ -8,7 +8,7 @@
 
 ``` xml
 <dependency>
-	<groupId>io.github.hiwepy</groupId>
+	<groupId>io.github.easy4j</groupId>
 	<artifactId>scribejava-apis-ext</artifactId>
 	<version>${project.version}</version>
 </dependency>
