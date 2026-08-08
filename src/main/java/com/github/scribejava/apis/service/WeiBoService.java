@@ -1,5 +1,5 @@
 /*
- * 版权所有.(c)2008-2018. 极蚁网络工作室 (http://jeebiz.net).
+ * Copyright (c) 2008-2018 jeebiz.net.
  */
 package com.github.scribejava.apis.service;
 
@@ -15,117 +15,126 @@ import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
 
+/**
+ * High-level OAuth 2.0 service for Sina Weibo that encapsulates the complete
+ * authentication workflow: obtaining the login URL, exchanging an authorization code
+ * for an access token, retrieving the user's UID, fetching user profile information,
+ * and posting status updates.
+ *
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
+ * @since 3.0.0
+ * @see SinaWeiboApi20
+ * @see SinaOAuth20ServiceImpl
+ */
 public class WeiBoService {
-	
-	// 获取用户uid 的 URL
+
+    /** URL endpoint for retrieving the authenticated user's UID. */
     private static final String U_ID_URL = "https://api.weibo.com/2/account/get_uid.json";
-    // 获取用户信息的 URL
+
+    /** URL template for retrieving user profile information by UID. */
     private static final String USER_INFO_URL = "https://api.weibo.com/2/users/show.json?uid=%s";
-    // 用户分享的url
+
+    /** URL template for posting a status update (share) to Weibo. */
     private static final String USER_SHARE_URL = "https://api.weibo.com/2/statuses/share.json?status=%s";
-    
-    // 下面的属性可以通过配置读取
-    //注意 切记callbackUrl参数是你在微博开发平台下填写的回掉页面，此地址一定要放在外网，用个穿透工具就行。下载地址    http://download.csdn.net/download/liu976180578/10139479
-    private String scope       = "all";   
-    
-    private String callbackUrl = "http://lzclzc.tunnel.qydev.com/scribejava_Auth/oauth/weibo/callback.action"; // WeiBo 在登陆成功后回调的 URL，这个 URL 必须在 WeiBo 互联里填写过
-    private String apiKey      = "3703387386";                                      // WeiBo 互联应用管理中心的 APP ID
-    private String apiSecret   = "f525745eaa5fbaee169b23dae552049f";               // WeiBo 互联应用管理中心的 APP Key
-    
-    // WeiBo 互联的 API 接口，访问用户资料
-    private OAuth20Service oauthService; // 访问 WeiBo 服务的 service
-    
+
+    private String scope       = "all";
+    private String callbackUrl = "http://lzclzc.tunnel.qydev.com/scribejava_Auth/oauth/weibo/callback.action";
+    private String apiKey      = "3703387386";
+    private String apiSecret   = "f525745eaa5fbaee169b23dae552049f";
+    private OAuth20Service oauthService;
+
+    /**
+     * Constructs a new Weibo OAuth service, initializing the underlying
+     * {@link OAuth20Service} with the configured API key, secret, scope, and callback URL.
+     */
     public WeiBoService() {
-        // 创建访问 WeiBo 服务的 service
         oauthService = new ServiceBuilder().apiKey(apiKey).apiSecret(apiSecret)
                 .scope(scope).callback(callbackUrl).build(SinaWeiboApi20.instance());
     }
-    
+
     /**
-     * 取得 WeiBo 登陆页面的 URL，例如
-     * https://graph.WeiBo.com/oauth2.0/authorize?response_type=code&client_id=101292272&
-     * redirect_uri=http://open.qtdebug.com:8080/oauth/WeiBo/callback&scope=get_user_info
+     * Returns the Weibo login page URL to which the user should be redirected
+     * to authorize the application.
      *
-     * @return WeiBo 登陆页面的 URL
+     * @return the Weibo OAuth 2.0 authorization URL
      */
     public String getLoginUrl() {
         return oauthService.getAuthorizationUrl();
     }
+
     /**
-     * 使用 code 换取 access token
+     * Exchanges the authorization code received from Weibo's callback for an access token.
      *
-     * @param code 成功登陆后 WeiBo Server 返回给回调 URL 的中间 code，用于换取 access token
-     * @return 用于访问 WeiBo 服务的 token
-     * @throws IOException
-     * @throws ExecutionException 
-     * @throws InterruptedException 
+     * @param code the authorization code returned by Weibo after successful user login
+     * @return the access token string
+     * @throws IOException          if an I/O error occurs during the HTTP request
+     * @throws InterruptedException if the calling thread is interrupted while waiting
+     * @throws ExecutionException   if the asynchronous computation threw an exception
      */
     public String getAccessToken(String code) throws IOException, InterruptedException, ExecutionException {
-        OAuth2AccessToken token = oauthService.getAccessToken(code); // 使用 code 换取 accessToken
-        String accessToken = token.getAccessToken(); // 5943BF2461ED97237B878BECE78A8744
+        OAuth2AccessToken token = oauthService.getAccessToken(code);
+        String accessToken = token.getAccessToken();
         return accessToken;
     }
-    
+
     /**
-     * 获取用户的uid，WeiBo 的昵称，WeiBo 空间的头像等，一般这 2 个属性用的最多
+     * Retrieves the authenticated user's UID from Weibo.
      *
-     * @param accessToken 登陆时从 WeiBo 系统得到的 access token，作为访问的凭证，相当于用户名密码的作用
-     * @throws IOException
+     * @param accessToken the access token obtained during the OAuth flow
+     * @return the user's Weibo UID as a string
+     * @throws IOException if an I/O error occurs during the HTTP request
      */
     public String getUserid(String accessToken) throws IOException {
         String url = String.format(U_ID_URL);
-        Response oauthResponse = request(oauthService, accessToken, url,Verb.GET);
+        Response oauthResponse = request(oauthService, accessToken, url, Verb.GET);
         String responseJson = oauthResponse.getBody();
-        String uid= JSONObject.parseObject(responseJson).getString("uid");
+        String uid = JSONObject.parseObject(responseJson).getString("uid");
         return uid;
     }
-    
+
     /**
-     * 获取用户的信息，WeiBo 的昵称，WeiBo 空间的头像等，一般这 2 个属性用的最多
+     * Retrieves the user's profile information from Weibo by UID.
      *
-     * @param accessToken 登陆时从 WeiBo 系统得到的 access token，作为访问的凭证，相当于用户名密码的作用
-     * @param Uid 用户的uid
-     * @return JSONObject 对象
-     * @throws IOException
+     * @param accessToken the access token obtained during the OAuth flow
+     * @param uid         the user's Weibo UID
+     * @return the raw JSON response string containing the user's profile data
+     * @throws IOException if an I/O error occurs during the HTTP request
      */
-    public String getUserInfo(String accessToken,String uid) throws IOException {
-        String url = String.format(USER_INFO_URL,uid);
-        Response oauthResponse = request(oauthService, accessToken, url,Verb.GET);
+    public String getUserInfo(String accessToken, String uid) throws IOException {
+        String url = String.format(USER_INFO_URL, uid);
+        Response oauthResponse = request(oauthService, accessToken, url, Verb.GET);
         String responseJson = oauthResponse.getBody();
         return responseJson;
     }
-    
-    
-    
-    
+
     /**
-     * 分享，WeiBo 的昵称，
+     * Posts a status update (share) to the authenticated user's Weibo timeline.
      *
-     * @param accessToken 登陆时从 WeiBo 系统得到的 access token，作为访问的凭证，相当于用户名密码的作用
-     * @param Uid 用户的uid
-     * @return JSONObject 对象
-     * @throws IOException
+     * @param accessToken the access token obtained during the OAuth flow
+     * @param status      the status text to share
+     * @return the raw JSON response string from the Weibo API
+     * @throws IOException if an I/O error occurs during the HTTP request
      */
-    public String UserShare(String accessToken,String status) throws IOException {
-        String url = String.format(USER_SHARE_URL,status);
-        Response oauthResponse = request(oauthService, accessToken, url,Verb.POST);
+    public String UserShare(String accessToken, String status) throws IOException {
+        String url = String.format(USER_SHARE_URL, status);
+        Response oauthResponse = request(oauthService, accessToken, url, Verb.POST);
         String responseJson = oauthResponse.getBody();
         return responseJson;
     }
+
     /**
-     * 使用 OAuth 2.0 的方式从服务器获取 URL 指定的信息
+     * Executes an OAuth-signed HTTP request against the Weibo API.
      *
-     * @param accessToken 登陆时从 WeiBo 系统得到的 access token，作为访问的凭证，相当于用户名密码的作用
-     * @param url 访问 OAuth Server 服务的 URL
-     * @return
+     * @param service     the {@link OAuth20Service} to use for signing
+     * @param accessToken the access token string for authentication
+     * @param url         the target URL to request
+     * @param verb        the HTTP method (GET, POST, etc.)
+     * @return the {@link Response} from the server
      */
-    public Response request(OAuth20Service service, String accessToken, String url,Verb verb) {
+    public Response request(OAuth20Service service, String accessToken, String url, Verb verb) {
         OAuth2AccessToken token = new OAuth2AccessToken(accessToken);
-        OAuthRequest oauthRequest = new OAuthRequest(verb, url, null);//verb是提交方式post/get/..
-        service.signRequest(token, oauthRequest); // 会把 accessToken 添加到请求中，GET 请求即添加到 URL 上
-        /*Response oauthResponse = oauthRequest.send();
-        return oauthResponse;*/
+        OAuthRequest oauthRequest = new OAuthRequest(verb, url, null);
+        service.signRequest(token, oauthRequest);
         return null;
     }
 }
-

@@ -33,6 +33,25 @@
 		    <version>${fastjson.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>5.10.2</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>5.11.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-junit-jupiter</artifactId>
+			<version>5.11.0</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 	
 	<build>
@@ -113,7 +132,7 @@
 						<skipTests>false</skipTests>
 						
 						<forkMode>once</forkMode>
-						<argLine>-Xmx1024m   -Dfile.encoding=UTF-8</argLine> 
+						<argLine>${argLine} -Xmx1024m -Dfile.encoding=UTF-8 -Dnet.bytebuddy.experimental=true</argLine> 
 						<additionalClasspathElements> 
 			                <additionalClasspathElement>${basedir}/target/test-classes</additionalClasspathElement>  
 			            </additionalClasspathElements>  
@@ -350,6 +369,27 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
+			</plugin>
+
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${maven-jacoco-plugin.version}</version>
+				<executions>
+					<execution>
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin> 
 			
 			<plugin>  					 
