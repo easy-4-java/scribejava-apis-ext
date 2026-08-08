@@ -7,27 +7,27 @@ import com.github.scribejava.core.model.OAuthConfig;
 import com.github.scribejava.core.oauth.OAuth20Service;
 
 /**
- * OAuth 2.0 service implementation for OSChina (Open Source China).
+ * OAuth 2.0 service implementation for Sina Weibo.
  * <p>
  * Extends {@link OAuth20Service} to add a {@code dataType=json} query parameter
- * to every signed request, which instructs the OSChina API to return responses
+ * to every signed request, which instructs the Sina Weibo API to return responses
  * in JSON format.
  * </p>
  *
  * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
- * @see com.github.scribejava.apis.OschinaApi20
+ * @see com.github.scribejava.apis.SinaWeiboApi20
  * @see OAuth20Service
  */
-public class OschinaOAuth20ServiceImpl extends OAuth20Service {
+public class SinaOAuth20ServiceImpl extends OAuth20Service {
 
     /**
-     * Constructs a new OSChina OAuth 2.0 service.
+     * Constructs a new Sina Weibo OAuth 2.0 service.
      *
-     * @param api    the {@link DefaultApi20} API descriptor for OSChina
+     * @param api    the {@link DefaultApi20} API descriptor for Sina Weibo
      * @param config the OAuth configuration containing API key, secret, callback, etc.
      */
-    public OschinaOAuth20ServiceImpl(DefaultApi20 api, OAuthConfig config) {
+    public SinaOAuth20ServiceImpl(DefaultApi20 api, OAuthConfig config) {
         super(api, config);
     }
 
