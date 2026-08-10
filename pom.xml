@@ -369,6 +369,7 @@
 	
 	<properties>
 		<java.version>1.8</java.version>
+		<maven.compiler.release>${java.version}</maven.compiler.release>
 		<maven.version>3.0</maven.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<!-- Dependency versions -->
